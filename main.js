@@ -36,7 +36,14 @@ function remove(){
 }
 
 function addTask(){
+
     let task=document.getElementById('addTask').value;
+
+    if(task == ''){    
+        alert('Fill the task')
+    }
+    else{
+
     let label = document.getElementById('label').value;
     // let label_text = document.getElementById('label').value
     let list = get_list();
@@ -45,10 +52,12 @@ function addTask(){
     localStorage.setItem('todo',tempList);
     //to refreash the list with updated items
     showList();
+    document.getElementById('fom2').reset();
     //navigator.geolocation.clearWatch(watcher)
     //initialize()
     //check use
     //return false;
+    }
 }
 
 function error(err) {
