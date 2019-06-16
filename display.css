@@ -41,8 +41,8 @@ body {
   .list{
       display: grid;
       margin-top:-70px;
+      margin-left: -35px;
       /* grid-template-columns: 180px 130px 100px; */
-      grid-column: 1/4;
       grid-auto-rows: 50px;
   }
   .unordered_list{
