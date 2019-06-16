@@ -131,7 +131,7 @@ async function initialize(){
         // }
         // notify(message)
         
-        if(count!=1){
+        if(count!=1 && todoList.length == 0){
             let start = new Date()
             alert(message)
             console.log(count+":"+start.getTime())
