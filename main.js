@@ -1,82 +1,57 @@
 function get_list(){
-    let todo=new Array;
-    let todoStr=localStorage.getItem('todo');
+    let todo = new Array
+    let todoStr = localStorage.getItem('todo')
     if(todoStr != null){
-        todo=JSON.parse(todoStr);
+        todo = JSON.parse(todoStr)
     }
-    //return list as array
-    return todo;
+    return todo
 }
 
 function showList(){
-    let tasks = get_list();
-    let disp = '<div class="unordered_list"><ul>';
-    for(let i=0;i<tasks.length;i++){
-        disp+='<li><div>'+tasks[i]['task']+'</div><div>'+tasks[i]['label']+'</div><div><button class="remove" id="'+i+'">Delete</button></div></li>';
+    let list = get_list()
+    let disp = '<div class="unordered_list"><ul>'
+    for(let i = 0;i<list.length;i++){
+        disp += '<li><div>'+list[i]['task']+'</div><div>'+list[i]['label_text']+'</div><div><button class="remove" id="'+i+'">Delete</button></div></li>'
     }
-    disp+='</ul></div>';
-    // document.getElementById('list').innerHTML=disp;
-    document.getElementsByClassName('list')[0].innerHTML=disp;
-    let buttons = document.getElementsByClassName('remove');
-    for(let i=0;i<buttons.length;i++){
-        buttons[i].addEventListener('click',remove);
+    disp += '</ul></div>'
+    document.getElementsByClassName('list')[0].innerHTML=disp
+    let buttons = document.getElementsByClassName('remove')
+    for(let i = 0;i<buttons.length;i++){
+        buttons[i].addEventListener('click',remove)
     }
 }
 
 function remove(){
-    let removeButtonId=this.getAttribute('id');
-    let list = get_list();
-    // remove 1 element from index removeButtonId
-    list.splice(removeButtonId,1);
-    let tempList = JSON.stringify(list);
-    localStorage.setItem('todo',tempList);
-    showList();
-    //check
-    //return false;
+    let removeButtonId = this.getAttribute('id')
+    let list = get_list()
+    list.splice(removeButtonId,1)
+    let tempList = JSON.stringify(list)
+    localStorage.setItem('todo',tempList)
+    showList()
 }
 
 function addTask(){
-
-    let task=document.getElementById('addTask').value;
-
+    let task = document.getElementById('addTask').value
     if(task == ''){    
         alert('Fill the task')
-    }
-    else{
-
-    let label = document.getElementById('label').value;
-    // let label_text = document.getElementById('label').value
-    let list = get_list();
-    list.push({task:task,label:label});
-    let tempList=JSON.stringify(list);
-    localStorage.setItem('todo',tempList);
-    //to refreash the list with updated items
-    showList();
-    document.getElementById('fom2').reset();
-    //navigator.geolocation.clearWatch(watcher)
-    //initialize()
-    //check use
-    //return false;
+    } else {
+        let label = document.getElementById('label').value
+        let sel = document.getElementById('label')
+        let label_text = sel.options[sel.selectedIndex].text
+        let list = get_list()
+        list.push({task:task,label:label,label_text:label_text})
+        let tempList = JSON.stringify(list)
+        localStorage.setItem('todo',tempList)
+        showList()
     }
 }
 
 function error(err) {
-    console.warn('ERROR(' + err.code + '): ' + err.message);
-  }
+    console.warn('ERROR(' + err.code + '): ' + err.message)
+}
 
 async function initialize(){
-    let service = new google.maps.places.PlacesService(document.getElementById('places'));
-    // var dict = {}
-    // //let places = []
-    // let todoList = get_list()
-    // for(let i = 0;i<todoList.length;i++){
-    //     let item = todoList[i]
-    //     if(dict[item['label']]){// if key already present push to array
-    //         dict[item['label']].push(item['task'])
-    //     } else {// else add a new array for that key
-    //         dict[item['label']] = [item['task']]
-    //     }
-    // }
+    let service = new google.maps.places.PlacesService(document.getElementById('places'))
 
     function nearbySearch(request){
         return new Promise(function(resolve){
@@ -87,38 +62,31 @@ async function initialize(){
     }
 
     async function getPlaces(position){
+        count++;
 
-        count++
-        var dict = {}
-    //let places = []
-    let todoList = get_list()
-    for(let i = 0;i<todoList.length;i++){
-        let item = todoList[i]
-        if(dict[item['label']]){// if key already present push to array
-            dict[item['label']].push(item['task'])
-        } else {// else add a new array for that key
-            dict[item['label']] = [item['task']]
+        let dict = {}
+        let todoList = get_list()
+        for(let i = 0;i<todoList.length;i++){
+            let item = todoList[i]
+            if(dict[item['label']]){
+                dict[item['label']].push(item['task'])
+            } else {
+                dict[item['label']] = [item['task']]
+            }
         }
-    }
 
-        let allRequests = [];
-        var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        let allRequests = []
+        let pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
         for (const [key, value] of Object.entries(dict)) {
-            var request = {
+            let request = {
                 location: pos,
                 radius: '1500',
                 type: key
             }
-        allRequests.push(nearbySearch(request))
+            allRequests.push(nearbySearch(request))
         }
 
-        let allResponse = await Promise.all(allRequests);
-        // Promise.all(allRequests).then(function(values){
-        //     values.forEach(function(element,index,array){
-        //         array[index] = array[index].slice(0,3)
-        //     })
-        //     console.log(values)
-        // })
+        let allResponse = await Promise.all(allRequests)
         let message = ""
         allResponse.forEach(function(element,index,array){
             
@@ -132,26 +100,19 @@ async function initialize(){
                 
             })
             element['label'] = dict[element['label']]
-            //console.log("For "+ element['label']+" you can go to "+element['response'])
             message += "For "+ element['label']+" you can go to "+element['response']+"\n"
         })
-        // function notify(message){
-        //     var notification = new Notification("Hi there!",{body: message})
-        // }
-        // notify(message)
-        
-        if(count!=1 && message!=""){
-            let start = new Date()
+        if(count != 1 && message != ""){
+            console.log(count)
             alert(message)
-            console.log(count+":"+start.getTime())
         }
         
     }
     let count = 0
-    const watcher = navigator.geolocation.watchPosition(getPlaces, error, {distanceFilter:2000});
+    const watcher = navigator.geolocation.watchPosition(getPlaces, error, {distanceFilter:1500});
     setTimeout(() => {
         navigator.geolocation.clearWatch(watcher);
-    }, 6000000);
+    }, 60000000);
 
 }
 
